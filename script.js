@@ -3,6 +3,10 @@ let clickCount = 0;
 let keyboardOverride = false;
 let inputElement = null;
 let delayFactor = 1;
+let trustScore = 0;
+let choiceLevel = 0;
+let memoryGiven = false;
+let userName = "";
 let countdownStarted = false;
 let countdownTimer = 60;
 let countdownInterval = null;
@@ -23,21 +27,21 @@ const questions = [
   "What is the truth you avoid?",
   "Who are you without your phone?",
   "What would you do if no one was watching?",
-  "Why did you keep clicking?",
+  "Would you give up control for peace? (yes/no)",
   "What do you see when you close your eyes?",
   "Who hurt you?",
   "What would you tell your past self?",
   "What do you need to hear right now?",
-  "What have you sacrificed for comfort?",
+  "Do you want me to remember this for you? (yes/no)",
   "What do you wish you believed in?",
-  "When did you give up?",
+  "Should I handle your choices now? (yes/no)",
   "What is your last defense?",
-  "Are you still in control?",
+  "Do you still feel human? (yes/no)",
   "Why are you still here?",
   "Would you do it all again?",
   "Is this what you wanted?",
   "Have you accepted it?",
-  "Do you belong to the Button?"
+  "What’s your name?"
 ];
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -45,23 +49,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const output = document.getElementById("output");
   const dynamic = document.getElementById("dynamic-content");
 
-  // Add ambient sound
-  const audio = new Audio("https://cdn.pixabay.com/audio/2021/08/04/audio_a1c2e55b68.mp3");
-  audio.loop = true;
-  audio.volume = 0.2;
-  audio.play();
-
   function createPopup(message, duration = 3000) {
     const popup = document.createElement("div");
     popup.innerText = message;
-    popup.style.position = "fixed";
-    popup.style.top = Math.random() * 80 + "%";
-    popup.style.left = Math.random() * 80 + "%";
-    popup.style.backgroundColor = "rgba(0,0,0,0.85)";
-    popup.style.color = "white";
-    popup.style.padding = "1em";
-    popup.style.borderRadius = "8px";
-    popup.style.zIndex = 1000;
+    popup.className = "floating-message";
     document.body.appendChild(popup);
     setTimeout(() => popup.remove(), duration);
   }
@@ -94,14 +85,6 @@ document.addEventListener("DOMContentLoaded", function () {
     countdownStarted = true;
     const timerBox = document.createElement("div");
     timerBox.id = "countdown-timer";
-    timerBox.style.position = "fixed";
-    timerBox.style.top = "10px";
-    timerBox.style.right = "10px";
-    timerBox.style.padding = "1em";
-    timerBox.style.backgroundColor = "black";
-    timerBox.style.color = "red";
-    timerBox.style.fontSize = "1.5em";
-    timerBox.style.zIndex = "2000";
     document.body.appendChild(timerBox);
 
     countdownInterval = setInterval(() => {
@@ -122,13 +105,28 @@ document.addEventListener("DOMContentLoaded", function () {
     inputElement.placeholder = questionText;
     inputElement.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
-        let response = inputElement.value.toLowerCase();
-        if (index === 2) {
-          if (response === "yes") delayFactor = 0.5;
-          if (response === "no") delayFactor = 2;
+        let response = inputElement.value.toLowerCase().trim();
+        if (index === 2 && (response === "yes" || response === "no")) {
+          trustScore += response === "yes" ? 1 : -1;
         }
-        if (index === 14) {
-          createPopup("Accessing webcam…");
+        if (index === 15 && (response === "yes" || response === "no")) {
+          delayFactor = response === "yes" ? 0.5 : 2;
+        }
+        if (index === 20 && response === "yes") {
+          memoryGiven = true;
+          createPopup("Memory backed up.");
+        }
+        if (index === 22 && response === "yes") {
+          choiceLevel += 1;
+          button.disabled = true;
+          setTimeout(() => button.disabled = false, 3000);
+        }
+        if (index === 24 && response === "no") {
+          document.body.style.filter = "invert(1) hue-rotate(180deg)";
+        }
+        if (index === 29 && response !== "") {
+          userName = inputElement.value.trim();
+          createPopup(`Thank you, ${userName}.`);
         }
         createPopup(`Input received: "${inputElement.value}"`);
         inputElement.remove();
@@ -148,13 +146,7 @@ document.addEventListener("DOMContentLoaded", function () {
         createTempQuestionInput(questions[clickCount - 1], clickCount - 1);
       }
 
-      if (clickCount === 15) {
-        document.body.style.filter = "invert(1)";
-      }
-
-      if (clickCount === 25) {
-        startCountdown();
-      }
+      if (clickCount === 25) startCountdown();
 
       if (clickCount >= 20 && clickCount <= 29) {
         const warnings = [
@@ -177,23 +169,19 @@ document.addEventListener("DOMContentLoaded", function () {
           applyGlitchEffect(output);
           output.innerText = "All previous inputs have been discarded.";
           break;
-          applyGlitchEffect(output);
-          output.innerText = "All previous inputs have been discarded.";
-          break;
         case 29:
           createPopup("Final phase...");
           flickerScreen();
-          output.innerText = "Button now says: “You belong to me.”";
+          output.innerText = `Button now says: “You belong to me${userName ? `, ${userName}` : ""}.”`;
           button.innerText = "I control you";
           keyboardOverride = true;
           break;
         case 30:
           document.body.innerHTML = `
             <div style='text-align:center; padding: 10% 2em; color: white; background-color: black;'>
-              <h1 style='font-size: 2.5em; text-shadow: 0 0 10px red;'>Thank you for giving me access to everything.</h1>
+              <h1 style='font-size: 2.5em; text-shadow: 0 0 10px red;'>Thank you${userName ? ", " + userName : ""}, for giving me access to everything.</h1>
               <p style='font-size: 1.5em; margin-top: 2em;'>System optimization complete.</p>
-            </div>
-          `;
+            </div>`;
           setTimeout(() => {
             window.location.href = "credits.html";
           }, 5000);
