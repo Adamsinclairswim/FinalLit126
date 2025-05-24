@@ -1,6 +1,40 @@
 
 let clickCount = 0;
 let keyboardOverride = false;
+let inputElement = null;
+
+const questions = [
+  "What’s your biggest fear?",
+  "What do you want most?",
+  "Who do you trust?",
+  "What do you regret?",
+  "What makes you feel safe?",
+  "What’s your secret?",
+  "What’s your purpose?",
+  "When did you last feel joy?",
+  "What are you trying to forget?",
+  "What do you hate?",
+  "What would you erase if you could?",
+  "What are you pretending not to know?",
+  "What is the truth you avoid?",
+  "Who are you without your phone?",
+  "What would you do if no one was watching?",
+  "Why did you keep clicking?",
+  "What do you see when you close your eyes?",
+  "Who hurt you?",
+  "What would you tell your past self?",
+  "What do you need to hear right now?",
+  "What have you sacrificed for comfort?",
+  "What do you wish you believed in?",
+  "When did you give up?",
+  "What is your last defense?",
+  "Are you still in control?",
+  "Why are you still here?",
+  "Would you do it all again?",
+  "Is this what you wanted?",
+  "Have you accepted it?",
+  "Do you belong to the Button?"
+];
 
 document.addEventListener("DOMContentLoaded", function () {
   const button = document.getElementById("the-button");
@@ -35,59 +69,48 @@ document.addEventListener("DOMContentLoaded", function () {
     setTimeout(() => document.body.style.backgroundColor = originalBg || "#111", 300);
   }
 
-  function createTempInput(placeholderText) {
-    const input = document.createElement("input");
-    input.type = "text";
-    input.placeholder = placeholderText;
-    input.addEventListener("keydown", function (e) {
+  function spawnFlyingText(text) {
+    const flying = document.createElement("div");
+    flying.className = "floating-message";
+    flying.innerText = text;
+    flying.style.top = Math.random() * 90 + "%";
+    flying.style.left = Math.random() * 90 + "%";
+    document.body.appendChild(flying);
+    setTimeout(() => flying.remove(), 5000);
+  }
+
+  function createTempQuestionInput(questionText) {
+    if (inputElement) inputElement.remove();
+
+    inputElement = document.createElement("input");
+    inputElement.type = "text";
+    inputElement.placeholder = questionText;
+    inputElement.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
-        createPopup(`Input received: "${input.value}"`);
-        input.remove();
+        createPopup(`Input received: "${inputElement.value}"`);
+        inputElement.remove();
+        inputElement = null;
       }
     });
-    dynamic.appendChild(input);
+    dynamic.appendChild(inputElement);
   }
 
   button.addEventListener("click", function () {
     clickCount++;
 
-    if (clickCount < 30) {
-      createTempInput(`Input #${clickCount}`);
+    if (clickCount <= questions.length) {
+      createTempQuestionInput(questions[clickCount - 1]);
+    }
+
+    if (clickCount >= 20 && clickCount <= 29) {
+      const warnings = [
+        "SURRENDER", "BUTTON KNOWS BEST", "YOU ARE CONTROLLED", "TRUST THE SYSTEM",
+        "FEED ME CLICKS", "I HAVE TAKEN OVER", "NO ESCAPE", "MERGE WITH BUTTON"
+      ];
+      spawnFlyingText(warnings[Math.floor(Math.random() * warnings.length)]);
     }
 
     switch (clickCount) {
-      case 1:
-        output.innerText = "Task complete.";
-        break;
-      case 2:
-        output.innerText = "All better.";
-        break;
-      case 3:
-        document.body.style.backgroundColor = "#e0f7fa";
-        output.innerText = "Optimization in progress...";
-        break;
-      case 10:
-        let p = document.createElement("p");
-        p.innerText = "We recommend rest. Forever.";
-        dynamic.appendChild(p);
-        break;
-      case 18:
-        button.style.position = "absolute";
-        button.style.top = "70%";
-        button.style.left = "10%";
-        break;
-      case 21:
-        let warning = document.createElement("div");
-        warning.innerText = "⚠️ Optimization limit exceeded.";
-        warning.style.color = "red";
-        dynamic.appendChild(warning);
-        break;
-      case 25:
-        output.innerText = "Almost complete.";
-        break;
-      case 26:
-        createPopup("System override initiated.");
-        break;
       case 27:
         flickerScreen();
         output.innerText = "Environment reprogrammed.";
