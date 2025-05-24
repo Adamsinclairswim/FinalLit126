@@ -1,0 +1,71 @@
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f3f3f3;
+  text-align: center;
+  margin: 0;
+  padding: 2em;
+}
+
+#container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+h1 {
+  color: #222;
+}
+
+p {
+  color: #444;
+}
+
+button {
+  font-size: 1.5em;
+  padding: 1em 2em;
+  margin-top: 2em;
+  cursor: pointer;
+  border: none;
+  background-color: #d32f2f; /* Red button */
+  color: white;
+  border-radius: 10px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #b71c1c;
+}
+
+button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+#output {
+  margin-top: 2em;
+  min-height: 100px;
+  font-size: 1.2em;
+}
+
+#dynamic-content {
+  margin-top: 2em;
+}
+
+input, textarea {
+  display: block;
+  margin: 1em auto;
+  padding: 0.8em;
+  width: 80%;
+  font-size: 1em;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+a {
+  color: #0077cc;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
