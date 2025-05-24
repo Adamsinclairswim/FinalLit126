@@ -2,11 +2,15 @@
 let clickCount = 0;
 let keyboardOverride = false;
 let inputElement = null;
+let delayFactor = 1;
+let countdownStarted = false;
+let countdownTimer = 60;
+let countdownInterval = null;
 
 const questions = [
   "What’s your biggest fear?",
   "What do you want most?",
-  "Who do you trust?",
+  "Do you trust me? (yes/no)",
   "What do you regret?",
   "What makes you feel safe?",
   "What’s your secret?",
@@ -40,6 +44,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const button = document.getElementById("the-button");
   const output = document.getElementById("output");
   const dynamic = document.getElementById("dynamic-content");
+
+  // Add ambient sound
+  const audio = new Audio("https://cdn.pixabay.com/audio/2021/08/04/audio_a1c2e55b68.mp3");
+  audio.loop = true;
+  audio.volume = 0.2;
+  audio.play();
 
   function createPopup(message, duration = 3000) {
     const popup = document.createElement("div");
@@ -79,7 +89,32 @@ document.addEventListener("DOMContentLoaded", function () {
     setTimeout(() => flying.remove(), 5000);
   }
 
-  function createTempQuestionInput(questionText) {
+  function startCountdown() {
+    if (countdownStarted) return;
+    countdownStarted = true;
+    const timerBox = document.createElement("div");
+    timerBox.id = "countdown-timer";
+    timerBox.style.position = "fixed";
+    timerBox.style.top = "10px";
+    timerBox.style.right = "10px";
+    timerBox.style.padding = "1em";
+    timerBox.style.backgroundColor = "black";
+    timerBox.style.color = "red";
+    timerBox.style.fontSize = "1.5em";
+    timerBox.style.zIndex = "2000";
+    document.body.appendChild(timerBox);
+
+    countdownInterval = setInterval(() => {
+      countdownTimer--;
+      timerBox.innerText = `Optimization in: ${countdownTimer}`;
+      if (countdownTimer <= 0) {
+        clearInterval(countdownInterval);
+        timerBox.innerText = "Optimization Complete.";
+      }
+    }, 1000);
+  }
+
+  function createTempQuestionInput(questionText, index) {
     if (inputElement) inputElement.remove();
 
     inputElement = document.createElement("input");
@@ -87,52 +122,70 @@ document.addEventListener("DOMContentLoaded", function () {
     inputElement.placeholder = questionText;
     inputElement.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
+        let response = inputElement.value.toLowerCase();
+        if (index === 2) {
+          if (response === "yes") delayFactor = 0.5;
+          if (response === "no") delayFactor = 2;
+        }
+        if (index === 14) {
+          createPopup("Accessing webcam…");
+        }
         createPopup(`Input received: "${inputElement.value}"`);
         inputElement.remove();
         inputElement = null;
+        button.disabled = false;
       }
     });
     dynamic.appendChild(inputElement);
+    button.disabled = true;
   }
 
   button.addEventListener("click", function () {
-    clickCount++;
+    setTimeout(() => {
+      clickCount++;
 
-    if (clickCount <= questions.length) {
-      createTempQuestionInput(questions[clickCount - 1]);
-    }
+      if (clickCount <= questions.length) {
+        createTempQuestionInput(questions[clickCount - 1], clickCount - 1);
+      }
 
-    if (clickCount >= 20 && clickCount <= 29) {
-      const warnings = [
-        "SURRENDER", "BUTTON KNOWS BEST", "YOU ARE CONTROLLED", "TRUST THE SYSTEM",
-        "FEED ME CLICKS", "I HAVE TAKEN OVER", "NO ESCAPE", "MERGE WITH BUTTON"
-      ];
-      spawnFlyingText(warnings[Math.floor(Math.random() * warnings.length)]);
-    }
+      if (clickCount === 15) {
+        document.body.style.filter = "invert(1)";
+      }
 
-    switch (clickCount) {
-      case 27:
-        flickerScreen();
-        output.innerText = "Environment reprogrammed.";
-        break;
-      case 28:
-        dynamic.innerHTML = "";
-        applyGlitchEffect(output);
-        output.innerText = "All previous inputs have been discarded.";
-        break;
-      case 29:
-        createPopup("Final phase...");
-        flickerScreen();
-        output.innerText = "Button now says: “You belong to me.”";
-        keyboardOverride = true;
-        break;
-      case 30:
-        window.location.href = "credits.html";
-        break;
-      default:
-        output.innerText = `You’ve clicked ${clickCount} times.`;
-        break;
-    }
+      if (clickCount === 25) {
+        startCountdown();
+      }
+
+      if (clickCount >= 20 && clickCount <= 29) {
+        const warnings = [
+          "SURRENDER", "BUTTON KNOWS BEST", "YOU ARE CONTROLLED", "TRUST THE SYSTEM",
+          "FEED ME CLICKS", "I HAVE TAKEN OVER", "NO ESCAPE", "MERGE WITH BUTTON"
+        ];
+        spawnFlyingText(warnings[Math.floor(Math.random() * warnings.length)]);
+      }
+
+      switch (clickCount) {
+        case 27:
+          flickerScreen();
+          output.innerText = "Environment reprogrammed.";
+          break;
+        case 28:
+          dynamic.innerHTML = "";
+          applyGlitchEffect(output);
+          output.innerText = "All previous inputs have been discarded.";
+          break;
+        case 29:
+          createPopup("Final phase...");
+          flickerScreen();
+          output.innerText = "Button now says: “You belong to me.”";
+          button.innerText = "I control you";
+          keyboardOverride = true;
+          break;
+        case 30:
+          window.location.href = "credits.html";
+          break;
+      }
+    }, 500 * delayFactor);
   });
 
   document.addEventListener("keydown", function (e) {
