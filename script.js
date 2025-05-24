@@ -6,6 +6,34 @@ document.addEventListener("DOMContentLoaded", function () {
   const output = document.getElementById("output");
   const dynamic = document.getElementById("dynamic-content");
 
+  function createPopup(message, duration = 3000) {
+    const popup = document.createElement("div");
+    popup.innerText = message;
+    popup.style.position = "fixed";
+    popup.style.top = Math.random() * 80 + "%";
+    popup.style.left = Math.random() * 80 + "%";
+    popup.style.backgroundColor = "rgba(0,0,0,0.85)";
+    popup.style.color = "white";
+    popup.style.padding = "1em";
+    popup.style.borderRadius = "8px";
+    popup.style.zIndex = 1000;
+    document.body.appendChild(popup);
+    setTimeout(() => popup.remove(), duration);
+  }
+
+  function applyGlitchEffect(target) {
+    target.classList.add("glitch");
+    setTimeout(() => target.classList.remove("glitch"), 2000);
+  }
+
+  function flickerScreen() {
+    const originalBg = document.body.style.backgroundColor;
+    document.body.style.backgroundColor = "#fff";
+    setTimeout(() => document.body.style.backgroundColor = "#111", 100);
+    setTimeout(() => document.body.style.backgroundColor = "#fff", 200);
+    setTimeout(() => document.body.style.backgroundColor = originalBg || "#111", 300);
+  }
+
   button.addEventListener("click", function () {
     clickCount++;
 
@@ -22,6 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
         break;
       case 4:
         output.innerText = "Adjusting preferences...";
+        createPopup("Preferences updated.");
         break;
       case 5:
         output.innerText = "Streamlining your experience.";
@@ -32,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
         dynamic.appendChild(input1);
         break;
       case 7:
-        output.innerText = "Thanks. That has been noted.";
+        createPopup("Worry logged and minimized.");
         break;
       case 8:
         output.innerText = "You no longer need to decide.";
@@ -47,6 +76,7 @@ document.addEventListener("DOMContentLoaded", function () {
         break;
       case 11:
         output.innerText = "Input fields auto-filled.";
+        createPopup("Automation successful.");
         break;
       case 12:
         let input2 = document.createElement("input");
@@ -69,12 +99,13 @@ document.addEventListener("DOMContentLoaded", function () {
         dynamic.appendChild(txtarea);
         break;
       case 17:
-        output.innerText = "Thank you. Your memory is now archived.";
+        output.innerText = "Your memory is now archived.";
+        createPopup("Memory backup complete.");
         break;
       case 18:
-        document.getElementById("the-button").style.position = "absolute";
-        document.getElementById("the-button").style.top = "70%";
-        document.getElementById("the-button").style.left = "10%";
+        button.style.position = "absolute";
+        button.style.top = "70%";
+        button.style.left = "10%";
         break;
       case 19:
         output.innerText = "This was always the plan.";
@@ -90,30 +121,45 @@ document.addEventListener("DOMContentLoaded", function () {
         break;
       case 22:
         document.body.style.filter = "grayscale(1)";
+        createPopup("Visual tuning enabled.");
         break;
       case 23:
         output.innerText = "Smoothing contradictions...";
         break;
       case 24:
-        document.getElementById("the-button").disabled = true;
+        button.disabled = true;
         output.innerText = "Please wait...";
         setTimeout(() => {
-          document.getElementById("the-button").disabled = false;
+          button.disabled = false;
           output.innerText = "Resuming control... or are we?";
+          createPopup("System restored.");
         }, 3000);
         break;
       case 25:
         output.innerText = "Almost complete.";
         break;
       case 26:
-        document.body.innerHTML = "<h1 style='text-align:center'>You’ve been optimized.</h1>";
+        createPopup("System override initiated.");
+        break;
+      case 27:
+        flickerScreen();
+        output.innerText = "Environment reprogrammed.";
+        break;
+      case 28:
+        dynamic.innerHTML = "";
+        applyGlitchEffect(output);
+        output.innerText = "All previous inputs have been discarded.";
+        break;
+      case 29:
+        createPopup("Final phase...");
+        flickerScreen();
+        break;
+      case 30:
+        window.location.href = "credits.html";
         break;
       default:
-        document.body.innerHTML = "<h1 style='text-align:center'>The button is all that remains.</h1>";
+        output.innerText = "There is nothing more.";
         break;
-        case 31:
-  window.location.href = "credits.html";
-  break;
     }
   });
 });
