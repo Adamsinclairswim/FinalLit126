@@ -171,6 +171,12 @@ document.addEventListener("DOMContentLoaded", function () {
           break;
         case 28:
           dynamic.innerHTML = "";
+          if (inputElement) inputElement.remove();
+          inputElement = null;
+          button.disabled = false;
+          applyGlitchEffect(output);
+          output.innerText = "All previous inputs have been discarded.";
+          break;
           applyGlitchEffect(output);
           output.innerText = "All previous inputs have been discarded.";
           break;
@@ -182,7 +188,15 @@ document.addEventListener("DOMContentLoaded", function () {
           keyboardOverride = true;
           break;
         case 30:
-          window.location.href = "credits.html";
+          document.body.innerHTML = `
+            <div style='text-align:center; padding: 10% 2em; color: white; background-color: black;'>
+              <h1 style='font-size: 2.5em; text-shadow: 0 0 10px red;'>Thank you for giving me access to everything.</h1>
+              <p style='font-size: 1.5em; margin-top: 2em;'>System optimization complete.</p>
+            </div>
+          `;
+          setTimeout(() => {
+            window.location.href = "credits.html";
+          }, 5000);
           break;
       }
     }, 500 * delayFactor);
