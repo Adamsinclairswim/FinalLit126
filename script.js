@@ -63,17 +63,36 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function typewriterText(target, text, callback) {
-    target.innerText = "";
+    target.textContent = "";
     let i = 0;
     const interval = setInterval(() => {
       if (i < text.length) {
-        target.innerText += text[i];
+        target.textContent += text[i];
         i++;
       } else {
         clearInterval(interval);
         if (callback) callback();
       }
     }, 35);
+  }
+
+  function showThinking(callback) {
+    output.textContent = "...thinking...";
+    setTimeout(callback, 1000 + Math.random() * 1000);
+  }
+
+  function triggerGlitch() {
+    const glitch = document.createElement("div");
+    glitch.style.position = "fixed";
+    glitch.style.top = 0;
+    glitch.style.left = 0;
+    glitch.style.width = "100vw";
+    glitch.style.height = "100vh";
+    glitch.style.backgroundColor = "rgba(255,0,0,0.08)";
+    glitch.style.zIndex = "9999";
+    glitch.style.pointerEvents = "none";
+    document.body.appendChild(glitch);
+    setTimeout(() => glitch.remove(), 150);
   }
 
   function handleResponse(response, reaction) {
@@ -86,8 +105,10 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       delayFactor = 1;
     }
-    typewriterText(output, reaction, () => {
-      button.disabled = false;
+    showThinking(() => {
+      typewriterText(output, reaction, () => {
+        button.disabled = false;
+      });
     });
   }
 
@@ -131,6 +152,11 @@ document.addEventListener("DOMContentLoaded", function () {
       if (clickCount < questions.length) {
         createButtons(clickCount);
         updateUI();
+
+        if ([15, 17, 20, 23, 27].includes(clickCount)) {
+          triggerGlitch();
+        }
+
         clickCount++;
       } else {
         const finalMessage = yesCount > noCount
