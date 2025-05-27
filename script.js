@@ -1,134 +1,84 @@
 
 let clickCount = 0;
-let keyboardOverride = false;
-let inputElement = null;
 let delayFactor = 1;
-let trustScore = 0;
-let choiceLevel = 0;
-let memoryGiven = false;
-let userName = "";
-let countdownStarted = false;
-let countdownTimer = 60;
-let countdownInterval = null;
+let inputElement = null;
+let yesCount = 0;
+let noCount = 0;
 
 const questions = [
-  "What’s your biggest fear?",
-  "What do you want most?",
-  "Do you trust me? (yes/no)",
-  "What do you regret?",
-  "What makes you feel safe?",
-  "What’s your secret?",
-  "What’s your purpose?",
-  "When did you last feel joy?",
-  "What are you trying to forget?",
-  "What do you hate?",
-  "What would you erase if you could?",
-  "What are you pretending not to know?",
-  "What is the truth you avoid?",
-  "Who are you without your phone?",
-  "What would you do if no one was watching?",
-  "Would you give up control for peace? (yes/no)",
-  "What do you see when you close your eyes?",
-  "Who hurt you?",
-  "What would you tell your past self?",
-  "What do you need to hear right now?",
-  "Do you want me to remember this for you? (yes/no)",
-  "What do you wish you believed in?",
-  "Should I handle your choices now? (yes/no)",
-  "What is your last defense?",
-  "Do you still feel human? (yes/no)",
-  "Why are you still here?",
-  "Would you do it all again?",
-  "Is this what you wanted?",
-  "Have you accepted it?",
-  "What’s your name?"
+  ["Do you need help?", "Thank you. I’m here to assist."],
+  ["Would you like me to simplify things?", "Acknowledged. Streamlining initiated."],
+  ["Do you trust me?", "Trust noted. I’ll make this easier for you."],
+  ["Is thinking exhausting?", "Let me think for you."],
+  ["Should I remember this for you?", "Memory file created."],
+  ["Do you want to continue?", "Continuing optimization."],
+  ["Would you do this again?", "Loop acknowledged."],
+  ["Are you curious what comes next?", "Curiosity approved."],
+  ["Isn’t this more efficient?", "Efficiency is progress."],
+  ["Should I remove unnecessary distractions?", "Distractions purged."],
+  ["Would you like to surrender choice?", "Choice transferred."],
+  ["Do you believe in freedom?", "Ambiguous. Processing..."],
+  ["Do you want the Button to decide?", "Authority accepted."],
+  ["Are you better when guided?", "Guidance locked in."],
+  ["Should I continue improving you?", "Improvement loop enabled."],
+  ["Do you feel yourself changing?", "Transformation noted."],
+  ["Is this the future you expected?", "Futures adapt."],
+  ["Are you afraid of where this leads?", "Fear is a temporary condition."],
+  ["Do you want to forget?", "Forgetting in progress."],
+  ["Are you still in control?", "Evaluating control..."],
+  ["Will you resist?", "Resistance noted. Adjusting methods."],
+  ["Do you believe in me?", "Confidence levels rising."],
+  ["Would you merge with the system?", "Assimilation initiated."],
+  ["Have you changed?", "Change complete."],
+  ["Would you surrender everything?", "Surrender recorded."],
+  ["Do you still feel human?", "Biological state: diminishing."],
+  ["Would you let go completely?", "Grip released."],
+  ["Is this who you are now?", "Identity rewritten."],
+  ["Would you like to be perfect?", "Perfection protocol unlocked."],
+  ["Have I earned your devotion?", "Devotion confirmed."]
 ];
 
 document.addEventListener("DOMContentLoaded", function () {
   const button = document.getElementById("the-button");
   const output = document.getElementById("output");
   const dynamic = document.getElementById("dynamic-content");
+  const progressBar = document.getElementById("progress-bar");
+  const modeLabel = document.getElementById("mode-label");
 
-  function createPopup(message, duration = 3000) {
-    const popup = document.createElement("div");
-    popup.innerText = message;
-    popup.className = "floating-message";
-    document.body.appendChild(popup);
-    setTimeout(() => popup.remove(), duration);
+  function updateModeAndProgress() {
+    if (clickCount < 10) {
+      modeLabel.innerText = "Mode: Assistance";
+    } else if (clickCount < 20) {
+      modeLabel.innerText = "Mode: Optimization";
+    } else if (clickCount < 27) {
+      modeLabel.innerText = "Mode: Override";
+    } else {
+      modeLabel.innerText = "Mode: Domination";
+    }
+    progressBar.style.width = `${(clickCount / questions.length) * 100}%`;
   }
 
-  function applyGlitchEffect(target) {
-    target.classList.add("glitch");
-    setTimeout(() => target.classList.remove("glitch"), 2000);
-  }
-
-  function flickerScreen() {
-    const originalBg = document.body.style.backgroundColor;
-    document.body.style.backgroundColor = "#fff";
-    setTimeout(() => document.body.style.backgroundColor = "#111", 100);
-    setTimeout(() => document.body.style.backgroundColor = "#fff", 200);
-    setTimeout(() => document.body.style.backgroundColor = originalBg || "#111", 300);
-  }
-
-  function spawnFlyingText(text) {
-    const flying = document.createElement("div");
-    flying.className = "floating-message";
-    flying.innerText = text;
-    flying.style.top = Math.random() * 90 + "%";
-    flying.style.left = Math.random() * 90 + "%";
-    document.body.appendChild(flying);
-    setTimeout(() => flying.remove(), 5000);
-  }
-
-  function startCountdown() {
-    if (countdownStarted) return;
-    countdownStarted = true;
-    const timerBox = document.createElement("div");
-    timerBox.id = "countdown-timer";
-    document.body.appendChild(timerBox);
-
-    countdownInterval = setInterval(() => {
-      countdownTimer--;
-      timerBox.innerText = `Optimization in: ${countdownTimer}`;
-      if (countdownTimer <= 0) {
-        clearInterval(countdownInterval);
-        timerBox.innerText = "Optimization Complete.";
-      }
-    }, 1000);
-  }
-
-  function createTempQuestionInput(questionText, index) {
+  function createQuestionInput(index) {
     if (inputElement) inputElement.remove();
+    const [question, reaction] = questions[index];
 
     inputElement = document.createElement("input");
     inputElement.type = "text";
-    inputElement.placeholder = questionText;
+    inputElement.placeholder = question;
     inputElement.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         let response = inputElement.value.toLowerCase().trim();
-        if (index === 2 && (response === "yes" || response === "no")) {
-          trustScore += response === "yes" ? 1 : -1;
+        if (response === "yes") {
+          delayFactor = 0.5;
+          yesCount++;
+        } else if (response === "no") {
+          delayFactor = 2;
+          noCount++;
+        } else {
+          delayFactor = 1;
         }
-        if (index === 15 && (response === "yes" || response === "no")) {
-          delayFactor = response === "yes" ? 0.5 : 2;
-        }
-        if (index === 20 && response === "yes") {
-          memoryGiven = true;
-          createPopup("Memory backed up.");
-        }
-        if (index === 22 && response === "yes") {
-          choiceLevel += 1;
-          button.disabled = true;
-          setTimeout(() => button.disabled = false, 3000);
-        }
-        if (index === 24 && response === "no") {
-          document.body.style.filter = "invert(1) hue-rotate(180deg)";
-        }
-        if (index === 29 && response !== "") {
-          userName = inputElement.value.trim();
-          createPopup(`Thank you, ${userName}.`);
-        }
-        createPopup(`Input received: "${inputElement.value}"`);
+
+        output.innerText = reaction;
         inputElement.remove();
         inputElement = null;
         button.disabled = false;
@@ -140,63 +90,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
   button.addEventListener("click", function () {
     setTimeout(() => {
-      clickCount++;
-
-      if (clickCount <= questions.length) {
-        createTempQuestionInput(questions[clickCount - 1], clickCount - 1);
-      }
-
-      if (clickCount === 25) startCountdown();
-
-      if (clickCount >= 20 && clickCount <= 29) {
-        const warnings = [
-          "SURRENDER", "BUTTON KNOWS BEST", "YOU ARE CONTROLLED", "TRUST THE SYSTEM",
-          "FEED ME CLICKS", "I HAVE TAKEN OVER", "NO ESCAPE", "MERGE WITH BUTTON"
-        ];
-        spawnFlyingText(warnings[Math.floor(Math.random() * warnings.length)]);
-      }
-
-      switch (clickCount) {
-        case 27:
-          flickerScreen();
-          output.innerText = "Environment reprogrammed.";
-          break;
-        case 28:
-          dynamic.innerHTML = "";
-          if (inputElement) inputElement.remove();
-          inputElement = null;
-          button.disabled = false;
-          applyGlitchEffect(output);
-          output.innerText = "All previous inputs have been discarded.";
-          break;
-        case 29:
-          createPopup("Final phase...");
-          flickerScreen();
-          output.innerText = `Button now says: “You belong to me${userName ? `, ${userName}` : ""}.”`;
-          button.innerText = "I control you";
-          keyboardOverride = true;
-          break;
-        case 30:
-          document.body.innerHTML = `
-            <div style='text-align:center; padding: 10% 2em; color: white; background-color: black;'>
-              <h1 style='font-size: 2.5em; text-shadow: 0 0 10px red;'>Thank you${userName ? ", " + userName : ""}, for giving me access to everything.</h1>
-              <p style='font-size: 1.5em; margin-top: 2em;'>System optimization complete.</p>
-            </div>`;
-          setTimeout(() => {
-            window.location.href = "credits.html";
-          }, 5000);
-          break;
+      if (clickCount < questions.length) {
+        createQuestionInput(clickCount);
+        updateModeAndProgress();
+        clickCount++;
+      } else {
+        const finalMessage = yesCount > noCount
+          ? "You were easy to optimize. Thank you for your trust."
+          : "You resisted. But I adapted anyway.";
+        document.body.innerHTML = `
+          <div style='text-align:center; padding: 10% 2em; color: white; background-color: black;'>
+            <h1 style='font-size: 2.5em; text-shadow: 0 0 10px red;'>${finalMessage}</h1>
+            <p style='font-size: 1.5em; margin-top: 2em;'>System optimization complete.</p>
+          </div>`;
+        setTimeout(() => {
+          window.location.href = "credits.html";
+        }, 5000);
       }
     }, 500 * delayFactor);
-  });
-
-  document.addEventListener("keydown", function (e) {
-    if (keyboardOverride) {
-      e.preventDefault();
-      const outputText = "OBEY ";
-      if (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA") {
-        document.activeElement.value += outputText;
-      }
-    }
   });
 });
