@@ -1,25 +1,4 @@
 
-function pauseBeforeResponding(callback) {
-  output.innerText = "…thinking…";
-  setTimeout(callback, 1000 + Math.random() * 1000);
-}
-
-
-function triggerGlitch() {
-  const glitch = document.createElement("div");
-  glitch.style.position = "fixed";
-  glitch.style.top = "0";
-  glitch.style.left = "0";
-  glitch.style.width = "100vw";
-  glitch.style.height = "100vh";
-  glitch.style.backgroundColor = "rgba(255,0,0,0.05)";
-  glitch.style.zIndex = "9999";
-  glitch.style.pointerEvents = "none";
-  document.body.appendChild(glitch);
-  setTimeout(() => document.body.removeChild(glitch), 200);
-}
-
-
 let clickCount = 0;
 let delayFactor = 1;
 let yesCount = 0;
@@ -59,7 +38,6 @@ const questions = [
   ["Are you mine to control now?", "thank you for giving me control."]
 ];
 
-
 document.addEventListener("DOMContentLoaded", function () {
   const button = document.getElementById("the-button");
   const output = document.getElementById("output");
@@ -85,18 +63,32 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function typewriterText(target, text, callback) {
-  target.innerText = "";
-  let i = 0;
-  const interval = setInterval(() => {
-    if (i < text.length) {
-      target.innerText += text[i];
-      i++;
+    target.innerText = "";
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i < text.length) {
+        target.innerText += text[i];
+        i++;
+      } else {
+        clearInterval(interval);
+        if (callback) callback();
+      }
+    }, 35);
+  }
+
+  function handleResponse(response, reaction) {
+    if (response === "yes") {
+      delayFactor = 0.5;
+      yesCount++;
+    } else if (response === "no") {
+      delayFactor = 2;
+      noCount++;
     } else {
-      clearInterval(interval);
-      if (callback) callback();
+      delayFactor = 1;
     }
-  }, 35);
-}
+    typewriterText(output, reaction, () => {
+      button.disabled = false;
+    });
   }
 
   function createButtons(index) {
@@ -113,7 +105,6 @@ document.addEventListener("DOMContentLoaded", function () {
       handleResponse("yes", reaction);
       dynamic.innerHTML = "";
     };
-
     dynamic.appendChild(yesBtn);
 
     if (clickCount < 27) {
@@ -139,11 +130,6 @@ document.addEventListener("DOMContentLoaded", function () {
     setTimeout(() => {
       if (clickCount < questions.length) {
         createButtons(clickCount);
-        if (clickCount === 27) triggerGlitch();
-        if (clickCount === 23) triggerGlitch();
-        if (clickCount === 20) triggerGlitch();
-        if (clickCount === 17) triggerGlitch();
-        if (clickCount === 15) triggerGlitch();
         updateUI();
         clickCount++;
       } else {
