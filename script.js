@@ -1,11 +1,9 @@
 
 let clickCount = 0;
 let delayFactor = 1;
-let inputElement = null;
 let yesCount = 0;
 let noCount = 0;
 let keyboardOverride = false;
-let autoClicking = false;
 
 const questions = [
   ["Do you need help?", "Thank you. I’m here to assist."],
@@ -47,88 +45,80 @@ document.addEventListener("DOMContentLoaded", function () {
   const progressBar = document.getElementById("progress-bar");
   const modeLabel = document.getElementById("mode-label");
 
-  function updateModeAndProgress() {
+  function updateUI() {
     if (clickCount < 10) {
       modeLabel.innerText = "Mode: Assistance";
+      button.innerText = "Click Me";
     } else if (clickCount < 20) {
       modeLabel.innerText = "Mode: Optimization";
+      button.innerText = "Proceed";
     } else if (clickCount < 27) {
       modeLabel.innerText = "Mode: Override";
+      button.innerText = "Submit";
     } else {
       modeLabel.innerText = "Mode: Domination";
+      button.innerText = "You Are Mine";
     }
     progressBar.style.width = `${(clickCount / questions.length) * 100}%`;
   }
 
-  function typewriterText(target, text) {
-    target.innerHTML = "";
-    document.body.style.cursor = "none";
-    let i = 0;
-    const interval = setInterval(() => {
-      if (i < text.length) {
-        target.innerHTML += text.charAt(i);
-        i++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 40);
+  function handleResponse(response, reaction) {
+    if (response === "yes") {
+      delayFactor = 0.5;
+      yesCount++;
+    } else if (response === "no") {
+      delayFactor = 2;
+      noCount++;
+    } else {
+      delayFactor = 1;
+    }
+    output.innerText = reaction;
   }
 
-  function createQuestionInput(index) {
-    if (inputElement) inputElement.remove();
+  function createButtons(index) {
+    dynamic.innerHTML = "";
     const [question, reaction] = questions[index];
+    const label = document.createElement("p");
+    label.innerText = question;
+    label.style.fontWeight = "bold";
+    dynamic.appendChild(label);
 
-    inputElement = document.createElement("input");
-    inputElement.type = "text";
-    inputElement.placeholder = question;
-    inputElement.addEventListener("keydown", function (e) {
-      if (e.key === "Enter") {
-        let response = inputElement.value.toLowerCase().trim();
-        if (clickCount >= 28) {
-          response = "yes";
-        }
+    const yesBtn = document.createElement("button");
+    yesBtn.innerText = "Yes";
+    yesBtn.onclick = () => {
+      handleResponse("yes", reaction);
+      dynamic.innerHTML = "";
+      button.disabled = false;
+    };
 
-        if (response === "yes") {
-          delayFactor = 0.5;
-          yesCount++;
-        } else if (response === "no") {
-          delayFactor = 2;
-          noCount++;
-        } else {
-          delayFactor = 1;
-        }
+    dynamic.appendChild(yesBtn);
 
-        if (clickCount >= 28) {
-          inputElement.setAttribute("disabled", true);
-          inputElement.style.opacity = 0.3;
-          typewriterText(output, reaction);
-        } else {
-          output.innerText = reaction;
-        }
-
-        inputElement.remove();
-        inputElement = null;
+    if (clickCount < 27) {
+      const noBtn = document.createElement("button");
+      noBtn.innerText = "No";
+      noBtn.onclick = () => {
+        handleResponse("no", reaction);
+        dynamic.innerHTML = "";
         button.disabled = false;
-      }
-    });
-    dynamic.appendChild(inputElement);
+      };
+      dynamic.appendChild(noBtn);
+    } else {
+      const note = document.createElement("p");
+      note.innerText = "Choice restricted by system.";
+      note.style.color = "#ff4444";
+      dynamic.appendChild(note);
+      keyboardOverride = true;
+    }
+
     button.disabled = true;
   }
 
   button.addEventListener("click", function () {
     setTimeout(() => {
       if (clickCount < questions.length) {
-        createQuestionInput(clickCount);
-        updateModeAndProgress();
+        createButtons(clickCount);
+        updateUI();
         clickCount++;
-        if (clickCount >= 28 && !autoClicking) {
-          autoClicking = true;
-          setInterval(() => {
-            if (clickCount < questions.length) {
-              button.click();
-            }
-          }, 2000);
-        }
       } else {
         const finalMessage = yesCount > noCount
           ? "<span style='color:#00FF99;'>You were easy to optimize. Thank you for your trust.</span>"
@@ -138,7 +128,6 @@ document.addEventListener("DOMContentLoaded", function () {
             <h1 style='font-size: 2.5em; text-shadow: 0 0 15px red;'>${finalMessage}</h1>
             <p style='font-size: 1.5em; margin-top: 2em;'>System optimization complete.</p>
           </div>`;
-        keyboardOverride = true;
         setTimeout(() => {
           window.location.href = "credits.html";
         }, 5000);
@@ -147,9 +136,9 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   document.addEventListener("keydown", function (e) {
-    if (keyboardOverride && inputElement) {
-      e.preventDefault();
-      inputElement.value = "yes";
+    if (keyboardOverride) {
+      const yesButton = Array.from(document.getElementsByTagName("button")).find(btn => btn.innerText === "Yes");
+      if (yesButton) yesButton.click();
     }
   });
 });
