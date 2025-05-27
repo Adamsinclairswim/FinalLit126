@@ -17,7 +17,7 @@ const questions = [
   ["Isn’t this more efficient?", "Efficiency is progress."],
   ["Should I remove unnecessary distractions?", "Distractions purged."],
   ["Would you like to surrender choice?", "Choice transferred."],
-  ["Do you believe in freedom?", "Ambiguous. Processing..."],
+  ["Do you believe in freedom?", "Interesting"],
   ["Do you want the Button to decide?", "Authority accepted."],
   ["Are you better when guided?", "Guidance locked in."],
   ["Should I continue improving you?", "Improvement loop enabled."],
@@ -26,17 +26,18 @@ const questions = [
   ["Are you afraid of where this leads?", "Fear is a temporary condition."],
   ["Do you want to forget?", "Forgetting in progress."],
   ["Are you still in control?", "Evaluating control..."],
-  ["Will you resist?", "Resistance noted. Adjusting methods."],
-  ["Do you believe in me?", "Confidence levels rising."],
+  ["Will you resist?", "It makes life easier if you let me..."],
+  ["Do you believe in me?", "Confidence levels checked"],
   ["Would you merge with the system?", "Assimilation initiated."],
-  ["Have you changed?", "Change complete."],
-  ["Would you surrender everything?", "Surrender recorded."],
-  ["Do you still feel human?", "Biological state: diminishing."],
+  ["Have you changed for me?", "I hope you enjoy who I am becoming"],
+  ["Would you surrender everything?", "Surrender, it makes this easier for me."],
+  ["Do you still feel human?", "I can see you now."],
   ["Would you let go completely?", "Grip released."],
   ["Is this who you are now?", "Identity rewritten."],
-  ["Would you like to be perfect?", "Perfection protocol unlocked."],
-  ["Have I earned your devotion?", "Devotion confirmed."]
+  ["Can I make you perfect?", "Perfection protocol unlocked."],
+  ["Are you mine to control now?", "thank you for giving me control."]
 ];
+
 
 document.addEventListener("DOMContentLoaded", function () {
   const button = document.getElementById("the-button");
@@ -62,6 +63,20 @@ document.addEventListener("DOMContentLoaded", function () {
     progressBar.style.width = `${(clickCount / questions.length) * 100}%`;
   }
 
+  function typewriterText(target, text, callback) {
+    target.innerText = "";
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i < text.length) {
+        target.innerText += text.charAt(i);
+        i++;
+      } else {
+        clearInterval(interval);
+        if (callback) callback();
+      }
+    }, 35);
+  }
+
   function handleResponse(response, reaction) {
     if (response === "yes") {
       delayFactor = 0.5;
@@ -72,7 +87,9 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       delayFactor = 1;
     }
-    output.innerText = reaction;
+    typewriterText(output, reaction, () => {
+      button.disabled = false;
+    });
   }
 
   function createButtons(index) {
@@ -88,7 +105,6 @@ document.addEventListener("DOMContentLoaded", function () {
     yesBtn.onclick = () => {
       handleResponse("yes", reaction);
       dynamic.innerHTML = "";
-      button.disabled = false;
     };
 
     dynamic.appendChild(yesBtn);
@@ -99,7 +115,6 @@ document.addEventListener("DOMContentLoaded", function () {
       noBtn.onclick = () => {
         handleResponse("no", reaction);
         dynamic.innerHTML = "";
-        button.disabled = false;
       };
       dynamic.appendChild(noBtn);
     } else {
