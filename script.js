@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
     glitch.style.left = 0;
     glitch.style.width = "100vw";
     glitch.style.height = "100vh";
-    glitch.style.backgroundColor = "rgba(255,0,0,0.08)";
+    glitch.style.backgroundColor = "rgba(249, 8, 8, 0.89)";
     glitch.style.zIndex = "9999";
     glitch.style.pointerEvents = "none";
     document.body.appendChild(glitch);
