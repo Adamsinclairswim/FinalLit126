@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function showThinking(callback) {
     output.textContent = "...thinking...";
-    setTimeout(callback, 1000 + Math.random() * 1000);
+    setTimeout(callback, 750 + Math.random() * 1000);
   }
 
   function triggerGlitch() {
